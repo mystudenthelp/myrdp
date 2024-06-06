@@ -1,0 +1,30 @@
+name: Cl
+
+on: [push, workflow_dispatch]
+
+jobs:
+  build:
+
+    runs-on: macos-latest
+
+    steps:
+    - name: Download ngrok
+      run: curl -o ngrok.zip https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-darwin-amd64.zip
+    - name: Extract ngrok
+      run: unzip ngrok.zip
+    - name: Auth
+      run: ./ngrok authtoken $NGROK_AUTH_TOKEN
+      env:
+        NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
+    - name: Enable Screen Sharing (VNC)
+      run: |
+        sudo defaults write /Library/Preferences/com.apple.RemoteManagement.plist VNCAlwaysStartOnConsole -bool true
+        sudo defaults write /Library/Preferences/com.apple.RemoteManagement.plist ARD_AllLocalUsers -bool true
+        sudo defaults write /Library/Preferences/com.apple.RemoteManagement.plist VNCLegacyConnectionsEnabled -bool true
+        sudo defaults write /Library/Preferences/com.apple.RemoteManagement.plist VNCEnable -bool true
+        sudo /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart -activate -configure -access -on -users "runner" -privs -all -restart -agent -menu
+        echo 'P@ssw0rd!' | sudo /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart -activate -configure -clientopts -setvnclegacy -vnclegacy yes -setvncpw -vncpw $(echo -n 'P@ssw0rd!' | xxd -ps)
+    - name: Allow VNC through firewall
+      run: sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setvncperm 1
+    - name: Create Tunnel
+      run: ./ngrok tcp 5900
