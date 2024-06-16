@@ -23,7 +23,7 @@ jobs:
         sudo defaults write /Library/Preferences/com.apple.RemoteManagement.plist VNCLegacyConnectionsEnabled -bool true
         sudo defaults write /Library/Preferences/com.apple.RemoteManagement.plist VNCEnable -bool true
         sudo /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart -activate -configure -access -on -users "runner" -privs -all -restart -agent -menu
-        echo 'P@ssw0rd!' | sudo /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart -activate -configure -clientopts -setvnclegacy -vnclegacy yes -setvncpw -vncpw $(echo -n 'P@ssw0rd!' | xxd -ps)
+        echo '123' | sudo /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart -activate -configure -clientopts -setvnclegacy -vnclegacy yes -setvncpw -vncpw $(echo -n '123' | xxd -ps)
     - name: Allow VNC through firewall
       run: sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setvncperm 1
     - name: Create Tunnel
